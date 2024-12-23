@@ -17,11 +17,10 @@ async def handleHttp(request):
     return web.Response(text=text)
 
 async def handleHttpCriminalize(request):
-    print("got a request")
     ollamaClient = AsyncClient(host=OLLAMAHOST)
 
     if request.content_type != "application/json" or not request.can_read_body:
-        pass # XXX ERROR
+        raise web.HTTPBadRequest
 
     request_json = await request.json()
     # XXX ERROR
@@ -30,6 +29,7 @@ async def handleHttpCriminalize(request):
     resp = valkey.get(hashval)
     if resp:
         return web.Response(body=json.dumps({'response': resp}))
+
     else:
         model = "";
         if request_json["type"] == "title":
@@ -37,14 +37,12 @@ async def handleHttpCriminalize(request):
         elif request_json["type"] == "venue":
             model = "tootvenue"
         else:
-            pass # XXX ERROR
+            raise web.HTTPBadRequest
 
-        message = {'role': 'user', 'content': request_json["message"]}
+        message = {'role': 'user', 'content': request_json["message"][:5000]}
 
-        print("asking ollama (model {})".format(model))
         ollamaResponse = await ollamaClient.chat(model=model, messages=[message])
         # XXX ERROR
-        print("returning response")
 
         title = ollamaResponse["message"]["content"]
         title.strip('\"')
@@ -53,7 +51,6 @@ async def handleHttpCriminalize(request):
         return web.Response(body=json.dumps({'response': title }))
 
 app = web.Application()
-#logging.basicConfig(level=logging.DEBUG)
 app.add_routes([web.get('/', handleHttp),
                 web.put('/criminalize', handleHttpCriminalize)])
 
