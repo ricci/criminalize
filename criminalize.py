@@ -11,10 +11,11 @@ import aiohttp_cors
 from ollama import AsyncClient
 import redis
 
-
 OLLAMAHOST = os.environ['OLLAMA_HOST']
 VALKEYHOST = os.environ['VALKEY_HOST']
 VALKEYPORT = os.environ['VALKEY_PORT']
+
+logger = logging.getLogger(__name__)
 
 valkey = redis.asyncio.client.Redis(host=VALKEYHOST, port=VALKEYPORT, db=0, decode_responses=True)
 ollamaClient = AsyncClient(host=OLLAMAHOST)
@@ -26,11 +27,13 @@ async def handleHttp(request):
 async def handleHttpCriminalize(request):
 
     if request.content_type != "application/json" or not request.can_read_body:
+        logging.info("Bad content type: {}".format(request.content_type))
         raise web.HTTPBadRequest
 
     try:
         request_json = await request.json()
     except:
+        logging.info("Can't read JSON")
         raise web.HTTPBadRequest
 
     hashval = hashlib.sha256(repr(request_json).encode()).hexdigest()
@@ -49,6 +52,7 @@ async def handleHttpCriminalize(request):
     elif request_json["type"] == "venue":
         model = "tootvenue"
     else:
+        logging.info("Bad request type: {}".format(request_json["type"]))
         raise web.HTTPBadRequest
 
     message = {'role': 'user', 'content': request_json["message"][:5000]}
