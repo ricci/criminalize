@@ -5,6 +5,11 @@ import hashlib
 import json
 import os
 
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*"
+}
+
 from aiohttp import web
 from ollama import AsyncClient
 import redis
@@ -19,7 +24,7 @@ ollamaClient = AsyncClient(host=OLLAMAHOST)
 
 async def handleHttp(request):
     text = "Status: Healthy"
-    return web.Response(text=text)
+    return web.Response(text=text, headers=CORS_HEADERS)
 
 async def handleHttpCriminalize(request):
 
@@ -36,7 +41,7 @@ async def handleHttpCriminalize(request):
     try:
         resp = await valkey.get(hashval)
         if resp:
-            return web.Response(body=json.dumps({'response': resp}))
+            return web.Response(body=json.dumps({'response': resp}, headers=CORS_HEADERS))
     except redis.ConnectionError:
         # Oh well, no caching right now
         pass
@@ -61,7 +66,7 @@ async def handleHttpCriminalize(request):
         except:
             pass
 
-        return web.Response(body=json.dumps({'response': title }))
+        return web.Response(body=json.dumps({'response': title },headers=CORS_HEADERS))
     except:
         raise web.HTTPInternalServerError
 
