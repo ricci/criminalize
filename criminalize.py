@@ -1,12 +1,13 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
 import asyncio
-from aiohttp import web
+import hashlib
 import json
+import os
+
+from aiohttp import web
 from ollama import AsyncClient
 import redis
-import hashlib
-import os
 
 
 OLLAMAHOST = os.environ['OLLAMA_HOST']
@@ -40,7 +41,7 @@ async def handleHttpCriminalize(request):
         # Oh well, no caching right now
         pass
 
-    model = "";
+    model = ""
     if request_json["type"] == "title":
         model = "toottitle"
     elif request_json["type"] == "venue":
