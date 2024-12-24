@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+import logging
 import os
 
 from aiohttp import web
@@ -85,5 +86,8 @@ cors = aiohttp_cors.setup(app, defaults={
 for route in list(app.router.routes()):
     cors.add(route)
 
+
 if __name__ == '__main__':
+    if 'DEBUG' in os.environ:
+        logging.basicConfig(level=logging.DEBUG)
     web.run_app(app)
