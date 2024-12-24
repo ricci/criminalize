@@ -69,18 +69,21 @@ async def handleHttpCriminalize(request):
 app = web.Application()
 
 cors = aiohttp_cors.setup(app)
-resource = cors.add(app.router.add_resource("/criminalize"))
-route = cors.add(
-    resource.add_route("PUT", handler), {
-        "*": aiohttp_cors.ResourceOptions(
+app.add_routes([web.get('/', handleHttp),
+                web.put('/criminalize', handleHttpCriminalize)])
+
+# Configure default CORS settings.
+cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
             allow_credentials=True,
             expose_headers="*",
             allow_headers="*",
         )
-    })
+})
 
-app.add_routes([web.get('/', handleHttp),
-                web.put('/criminalize', handleHttpCriminalize)])
+# Configure CORS on all routes.
+for route in list(app.router.routes()):
+    cors.add(route)
 
 if __name__ == '__main__':
     web.run_app(app)
