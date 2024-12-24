@@ -6,10 +6,12 @@ import json
 from ollama import AsyncClient
 import redis
 import hashlib
+import os
 
-OLLAMAHOST = "10.0.0.71:11434"
-VALKEYHOST= "10.1.0.46"
-VALKEYPORT = 6380
+
+OLLAMAHOST = os.environ['OLLAMA_HOST']
+VALKEYHOST = os.environ['VALKEY_HOST']
+VALKEYPORT = os.environ['VALKEY_PORT']
 
 valkey = redis.asyncio.client.Redis(host=VALKEYHOST, port=VALKEYPORT, db=0, decode_responses=True)
 ollamaClient = AsyncClient(host=OLLAMAHOST)
