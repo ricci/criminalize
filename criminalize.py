@@ -51,6 +51,8 @@ async def handleHttpCriminalize(request):
         model = "toottitle"
     elif request_json["type"] == "venue":
         model = "tootvenue"
+    elif request_json["type"] == "bio":
+        model = "stodgify"
     else:
         logging.info("Bad request type: {}".format(request_json["type"]))
         raise web.HTTPBadRequest
